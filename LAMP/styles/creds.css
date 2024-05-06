@@ -17,7 +17,7 @@ body {
 }
 
 .container-can {
-  margin: 150px auto 54px auto;
+  margin: 300px auto 54px auto;
   background-color: gainsboro;
   border-radius: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
@@ -25,7 +25,7 @@ body {
   overflow: hidden;
   width: 768px;
   max-width: 100%;
-  min-height: 430px;
+  min-height: 600px;
 }
 
 .container-can p {

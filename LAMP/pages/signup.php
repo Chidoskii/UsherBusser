@@ -1,3 +1,8 @@
+<?php
+require_once("../php/config.php");
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -15,31 +20,46 @@
       integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
       crossorigin="anonymous"
     />
-    <link rel="icon" type="image/x-icon" href="../../../imgs/favicon2.ico" />
+    <link rel="icon" type="image/x-icon" href="../imgs/favicon2.ico" />
     <link rel="stylesheet" href="../styles/style.css" />
+    <link rel="stylesheet" href="../styles/mobile.css" />
     <title>Home | UsherBusser</title>
   </head>
   <body>
     <nav class="navbar fixed-top bg-dark navbar-dark navcan">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="../home.php"
+          <a class="navbar-brand" href="../index.php"
             ><img src="../imgs/ub-logo.png" alt="" height="50px" /> USHER
             BUSSER</a
           >
         </div>
 
         <div class="topnav-links">
-          <div class="creds">
-            <ul class="navbar-nav tl-links">
-              <li class="nav-item login">
-                <a class="nav-link" href="./login.php">LOG IN</a>
-              </li>
-              <li class="nav-item signup">
-                <a class="nav-link" href="#">SIGN UP</a>
-              </li>
-            </ul>
-          </div>
+        <?php
+        if(empty($_SESSION["logged_in"]) || $_SESSION["logged_in"] == false){
+          echo '<div class="creds">
+                  <ul class="navbar-nav tl-links">
+                    <li class="nav-item login">
+                      <a class="nav-link" href="./login.php">LOG IN</a>
+                    </li>
+                    <li class="nav-item signup">
+                      <a class="nav-link" href="#">SIGN UP</a>
+                    </li>
+                  </ul>
+                </div>';
+        } 
+        else {
+          echo '<li class="nav-item dropdown user-drop">
+                  <a class="nav-link " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img alt="user" src="../imgs/user-circle.png" class="user-logo"/>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="../php/logout.php">LOGOUT </a></li>
+                  </ul>
+                </li>';
+        }
+        ?>
 
           <form class="d-flex search-form" role="search">
             <input
@@ -68,7 +88,7 @@
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
           <ul class="navbar-nav">
             <li class="nav-item subnav">
-              <a class="nav-link" href="../home.php">HOME</a>
+              <a class="nav-link" href="../index.php">HOME</a>
             </li>
             <li class="nav-item subnav">
               <a class="nav-link" href="./showtimes.php">MOVIES</a>
@@ -83,7 +103,7 @@
               <a class="nav-link" href="./timecard.php">TIME CARD</a>
             </li>
             <li class="nav-item subnav">
-              <a class="nav-link" href="./critiques.php">REVIEWS</a>
+              <a class="nav-link" href="./reviews.php">REVIEWS</a>
             </li>
           </ul>
         </div>
@@ -99,13 +119,13 @@
           <div class="footer-left">
             <div class="footy-logo">
               <img
-                src="../../../imgs/android-chrome-512x512.png"
+                src="../imgs/android-chrome-512x512.png"
                 height="50px"
               />&nbsp;
               <p class="name-footer">CHIDOSKII</p>
             </div>
             <br />
-            <p>CMPS 2680 Web Programming <br />Final Project</p>
+            <p>CMPS 3680 Web Programming II<br />Final Project</p>
           </div>
           <div class="footer-mid">
             <p class="okpara_copyright">&copy; UsherBusser 2023</p>

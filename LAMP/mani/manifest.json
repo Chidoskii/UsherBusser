@@ -1,0 +1,25 @@
+{
+  "name": "UsherBusser",
+  "short_name": "UB",
+  "start_url": "../index.php",
+  "display": "standalone",
+  "background_color": "#111",
+  "description": "UsherBusser is an web application for movie theatre employees and movie enthusiasts!",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "ub-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "ub.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

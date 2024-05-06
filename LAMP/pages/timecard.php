@@ -1,3 +1,53 @@
+<?php
+require_once("../php/config.php");
+require_once("../php/functions.php");
+
+if(empty($_SESSION["logged_in"])){
+  header("location: ./login.php");
+}
+
+if($_SESSION["logged_in"] == false){
+  header("location: ./login.php");
+}
+
+$wtf = getUserId($_SESSION["login_email"]);
+$rand1 = rand(1000, 15000);
+$rand2 = rand(25000, 100000);
+$rand3 = $rand2 - $rand1;
+$total_hours = 0;
+
+if (isset($_POST["newShift"])) {
+  $shiftStart = $_POST["shiftStart"];
+  echo $shiftStart;
+  $shiftEnd = $_POST["shiftEnd"];
+  
+  
+  $db = get_mysqli_connection();
+  $query = $db->prepare("INSERT INTO Shifts (s_ID, u_ID, startTime, endTime) VALUES (?,?,?,?)");
+  $query->bind_param("iiss", $rand3,$wtf,$shiftStart,$shiftEnd);
+  $result = $query->execute();
+}
+
+$today = date_create(date("Y/m/d"));
+$changeup = $today;
+$today = date_format($today,"Y-m-d");
+date_sub($changeup, date_interval_create_from_date_string("14 days"));
+$date = date_format($changeup,"Y-m-d");
+
+$shifts = getUserShifts($wtf, $date, $today);
+if (!empty($shifts)) {
+  foreach ($shifts as $key => $value) {
+    
+    $startingTime = date_create($value['startTime']);
+    $endingTime = date_create($value['endTime']);
+    $hours = date_diff($endingTime, $startingTime);
+    $hours = $hours->format("%h");
+    $total_hours = $total_hours + $hours;
+  }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -15,8 +65,9 @@
       integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
       crossorigin="anonymous"
     />
-    <link rel="icon" type="image/x-icon" href="../../../imgs/favicon2.ico" />
+    <link rel="icon" type="image/x-icon" href="../imgs/favicon2.ico" />
     <link rel="stylesheet" href="../styles/style.css" />
+    <link rel="stylesheet" href="../styles/mobile.css" />
     <title>Time Card | UsherBusser</title>
   </head>
 
@@ -24,23 +75,37 @@
     <nav class="navbar fixed-top bg-dark navbar-dark navcan">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="../home.php"
+          <a class="navbar-brand" href="../index.php"
             ><img src="../imgs/ub-logo.png" alt="" height="50px" /> USHER
             BUSSER</a
           >
         </div>
 
         <div class="topnav-links">
-          <div class="creds">
-            <ul class="navbar-nav tl-links">
-              <li class="nav-item login">
-                <a class="nav-link" href="./login.php">LOG IN</a>
-              </li>
-              <li class="nav-item signup">
-                <a class="nav-link" href="./login.php">SIGN UP</a>
-              </li>
-            </ul>
-          </div>
+        <?php
+        if(empty($_SESSION["logged_in"]) || $_SESSION["logged_in"] == false){
+          echo '<div class="creds">
+                  <ul class="navbar-nav tl-links">
+                    <li class="nav-item login">
+                      <a class="nav-link" href="./login.php">LOG IN</a>
+                    </li>
+                    <li class="nav-item signup">
+                      <a class="nav-link" href="./login.php">SIGN UP</a>
+                    </li>
+                  </ul>
+                </div>';
+        } 
+        else {
+          echo '<li class="nav-item dropdown user-drop">
+                  <a class="nav-link " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img alt="user" src="../imgs/user-circle.png" class="user-logo"/>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="../php/logout.php">LOGOUT </a></li>
+                  </ul>
+                </li>';
+        }
+        ?>
 
           <form class="d-flex search-form" role="search">
             <input
@@ -69,7 +134,7 @@
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
           <ul class="navbar-nav">
             <li class="nav-item subnav">
-              <a class="nav-link" href="../home.php">HOME</a>
+              <a class="nav-link" href="../index.php">HOME</a>
             </li>
             <li class="nav-item subnav">
               <a class="nav-link" href="./showtimes.php">MOVIES</a>
@@ -84,7 +149,7 @@
               <a class="nav-link" href="#">TIME CARD</a>
             </li>
             <li class="nav-item subnav">
-              <a class="nav-link" href="./critiques.php">REVIEWS</a>
+              <a class="nav-link" href="./reviews.php">REVIEWS</a>
             </li>
           </ul>
         </div>
@@ -92,66 +157,110 @@
     </nav>
 
     <div class="container-lg home-content">
-      <div class="page-section">
-        <h1 id="worksched">WORK SCHEDULE</h1>
-        <br />
-        <br />
-        <iframe
-          src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=America%2FLos_Angeles&showPrint=0&src=MDM1ZDRkMmYyMjFjZmViY2NjYWE0ZGNjZTY4ZjAyZWU0ZWFiYzZhMzBiNDE1OGVkZTAzZTVmNDQyNWM5ODMyOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23EF6C00&color=%23A79B8E"
-          style="border: solid 1px #777"
-          width="800"
-          height="600"
-          frameborder="0"
-          scrolling="no"
-        ></iframe>
-      </div>
-      <div class="page-section">
-        <h1 id="tcard">TIME CARD</h1>
-        <div id="container">
-          <div id="contents">
-            <form action="#tcard" autocomplete="on">
-              <div class="groupings">
-                <label for="amount">Hours: </label>
-                <input type="number" id="amount" name="hours" required />
-              </div>
-              <div class="groupings">
-                <label for="rate-options">Pay Rate: </label>
-                <select id="rate-options" name="rate" required>
-                  <option value="16.50" selected>16.50</option>
-                  <option value="17.00">17.00</option>
-                  <option value="17.50">17.50</option>
-                  <option value="18.00">18.00</option>
-                  <option value="19.00">19.00</option>
-                  <option value="20.00">20.00</option>
-                  <option value="21.00">21.00</option>
-                  <option value="22.00">22.00</option>
-                </select>
-              </div>
-              <br />
-              <br />
-              <div id="actions">
-                <input type="submit" value="Calculate" />
-                <input type="reset" value="Clear" onclick="clearValue()" />
-              </div>
-            </form>
+      <div class="shifts-content-can">
+        <div class="shifts-page-section-can">
+          <h1 class="work-title">WORK SCHEDULE</h1>
+          <div class="sched-stats">
+            You got <span class="money-money"><?php echo $total_hours; ?></span> hrs on the books.
           </div>
-          <div id="output" class="empty"></div>
+          <?php
+            $pay = $total_hours * 16;
+          ?>
+          <div class="sched-stats">
+            You can expect <span class="money-money">$<?php echo $pay; ?></span> on your next check.
+          </div>
+        
+          <div class="shifts-can">
+          <?php
+
+            if (!empty($shifts)) {
+              foreach ($shifts as $key => $value) {
+                
+                $startingTime = date_create($value['startTime']);
+                $startTime = date_format($startingTime, 'h:i A');
+                $startDate = date_format($startingTime, 'D, F jS');
+                $endingTime = date_create($value['endTime']);
+                $endTime = date_format($endingTime, 'h:i A');
+                $hours = date_diff($endingTime, $startingTime);
+                $hours = $hours->format("%h");
+
+                $card = <<<CONTENT
+                    <div class="shift-info-can">
+                      <div class="shift-card-title">
+                        $startDate | $hours hrs
+                      </div>  
+                      <div class="shift-time-can">
+                        <div class="time-label">Start</div>
+                        <div class="shift-time">$startTime</div>
+                      </div>
+                      <div class="shift-time-can">
+                        <div class="time-label">End</div>
+                        <div class="shift-time">$endTime</div>
+                      </div>
+                    </div>
+                    CONTENT;
+                  echo $card;
+                }
+              } else {
+                $card = <<<CONTENT
+                    <div class="no-bread-can">
+                      You ain't gettin no bread, fam!
+                    </div>
+                    CONTENT;
+                  echo $card;
+              }
+            
+          ?>
+          </div>
+
+        </div>
+        <div class="add-shift-page-section-can">
+          <div class="add-shift-form">
+          <h1 class="add-shift-title">ADD NEW SHIFT</h1>
+          <?php
+            $shift_form = new PhpFormBuilder();
+            $shift_form->set_att("method", "POST");
+            $shift_form->add_input("Start", array(
+                "type" => "datetime-local",
+                "class" => array("add-shift-field"),
+                "required" => true
+            ), "shiftStart");
+            $shift_form->add_input("End", array(
+                "type" => "datetime-local",
+                "required" => true
+            ), "shiftEnd");
+            $shift_form->add_input("newShift", array(
+                "type" => "submit",
+                "class" => array("btn btn-dark add-shift-btn"),
+                "value" => "ADD"
+            ), "newShift");
+            $shift_form->build_form();
+
+            if (isset($_SESSION["shift_error"])) {
+                echo $_SESSION["shift_error"] . "<br>";
+                unset($_SESSION["shift_error"]);
+            }
+          ?>
+          </div>
         </div>
       </div>
+
+
     </div>
+
     <footer>
       <div class="container-lg">
         <div class="footer-flex">
           <div class="footer-left">
             <div class="footy-logo">
               <img
-                src="../../../imgs/android-chrome-512x512.png"
+                src="../imgs/android-chrome-512x512.png"
                 height="50px"
               />&nbsp;
               <p class="name-footer">CHIDOSKII</p>
             </div>
             <br />
-            <p>CMPS 2680 Web Programming <br />Final Project</p>
+            <p>CMPS 3680 Web Programming II<br />Final Project</p>
           </div>
           <div class="footer-mid">
             <p class="okpara_copyright">&copy; UsherBusser 2023</p>
