@@ -1,1 +1,5 @@
-This repo will contain code for UsherBusser
+# UsherBusser
+
+A web app for theater employees and movie enthusiasts.
+
+Visit site at: https://usherbusser.xyz/
